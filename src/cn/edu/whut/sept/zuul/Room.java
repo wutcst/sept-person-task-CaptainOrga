@@ -10,17 +10,28 @@ public class Room
     private String description;
     //用哈希表存放房间可以走的方向
     private HashMap<String, Room> exits;
-    private HashMap<String, Room> NPCs;
+    private HashMap<String,String>weapons;
+    private HashMap<String, String> NPCs;
     //一个房间的信息包括它的描述以及
     public Room(String description)
     {
         this.description = description;
         exits = new HashMap<>();
+        weapons=new HashMap<>();
+        NPCs=new HashMap<>();
     }
     //setExit函数：给某个节点设置可以走的方向以及那个方向上的另一个节点
     public void setExit(String direction, Room neighbor)
     {
         exits.put(direction, neighbor);
+    }
+    //setWeapons函数：给某个房间设置里面有一些什么样的武器
+    public void setWeapons(String description,String quality) {
+    	weapons.put(description, quality);
+    }
+  //setNPCS函数：给某个房间设置里面的传送点NPC
+    public void setNPCS(String description,String type) {
+    	NPCs.put(description, type);
     }
     //返回描述
     public String getShortDescription()
@@ -42,20 +53,36 @@ public class Room
         }
         return returnString;
     }
+    //显示房间内的物品
+    String getWeaponsString() {
+    	String returnString="weapons:";
+    	Set<String>keys=weapons.keySet();
+    	for(String weapon:keys) {
+    		returnString +=" "+weapon;
+    	}
+    		return returnString;
+    }
     //显示该房间所有存在的NPC
     private String getNPCString() {
-    	String returnString = "Some folks here:";
-    	Set<String> keys=exits.keySet();
+    	String returnString ="folks:";
+    	Set<String> keys=NPCs.keySet();
     	for(String NPC:keys) {
     		returnString +=" "+NPC;
     	}
-    	return returnString;
+    		return returnString;
     }
 
     public Room getExit(String direction)
     {
         return exits.get(direction);
     }
+
+    public String getNPCS() {
+    	return getNPCString();
+    }
+	public String getWeapon() {
+		return getWeaponsString();
+	}
 }
 
 

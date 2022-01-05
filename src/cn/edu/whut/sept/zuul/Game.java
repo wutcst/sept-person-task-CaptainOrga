@@ -13,6 +13,8 @@
  */
 package cn.edu.whut.sept.zuul;
 
+import java.util.Random;
+
 public class Game
 {
     private Parser parser;
@@ -52,10 +54,22 @@ public class Game
 
         lab.setExit("north", outside);
         lab.setExit("east", office);
+        lab.setExit("tp1", office);
+        lab.setExit("tp2", outside);
+        lab.setExit("tp3", pub);
+        lab.setExit("tp4", theater);
+        lab.setExit("tp5", lab);
+        
 
         office.setExit("west", lab);
 
         currentRoom = outside;  // start game outside
+        //create the weapons
+        outside.setWeapons("AKM(3.5kg)", "NORMAL");
+        lab.setWeapons("MK47(4.5kg)", "GOOD");
+        office.setWeapons("mental rifle(5.5kg)", "BAD");
+        //create NPC
+        lab.setNPCS("TPlink(TP+Destination)", "TPman");
     }
 
     /**
@@ -107,11 +121,17 @@ public class Game
         if (commandWord.equals("help")) {
             printHelp();
         }
-        else if (commandWord.equals("go")) {
+        if (commandWord.equals("go")) {
             goRoom(command);
         }
-        else if (commandWord.equals("quit")) {
+        if (commandWord.equals("quit")) {
             wantToQuit = quit(command);
+        }
+        if(commandWord.equals("look")) {
+        	lookforgoods(command);
+        }
+        if(commandWord.equals("TP")) {
+        	TPlink(command);
         }
         // else command not recognised.
         return wantToQuit;
@@ -131,7 +151,75 @@ public class Game
         System.out.println("Your command words are:");
         parser.showCommands();
     }
-
+    /**
+     * 执行查看物品指令。如果该房间存在物品，则会进行显示
+     * 否则打印“no goods here.”
+     */
+    private void lookforgoods(Command command) {
+    	Room room=currentRoom;
+    	String weaponstring=room.getWeaponsString();
+    	String NPCSString=room.getNPCS();
+    	System.out.println(weaponstring);
+    	System.out.println(NPCSString);
+    	System.out.println(currentRoom.getLongDescription());
+    }
+    /**
+     * 执行tp指令，向指定房间移动
+     */
+    private void TPlink(Command command) {
+    	if(currentRoom.getShortDescription()!="in a computing lab") {
+    		System.out.println("You can't tp here.No tplink.");
+    		return;
+    	}
+    	if(!command.hasSecondWord()) {
+            System.out.println("TPlink:TP where?");
+            return;
+        }
+    	//System.out.println("TPlink:HI,where you want to go?");
+    	String destination=command.getSecondWord();
+    	if(destination=="in the computing admin office"||destination=="in a computing lab"||destination=="in a lecture theater"||destination=="outside the main entrance of the university"||destination=="in the campus pub") {
+    		System.out.println("TPlink:NO such place!");
+    		return;
+    	}
+    	else {
+    	System.out.println("TPlink:Well,"+destination);
+    		Room nextroom;
+    		switch(destination) {
+    		case ("office"):destination="in the computing admin office";break;
+    		case ("outside"):destination="outside the main entrance of the university";break;
+    		case ("pub"):destination="in the campus pub";break;
+    		case ("theater"):destination="in a lecture theater";break;
+    		case ("lab"):destination="in a computing lab";break;
+    		}
+    		if(destination=="in the computing admin office") {
+    			nextroom=currentRoom.getExit("tp1");
+    			currentRoom=nextroom;
+    			System.out.println(currentRoom.getLongDescription());
+    		}
+    		if(destination=="outside the main entrance of the university") {
+    			nextroom=currentRoom.getExit("tp2");
+    			currentRoom=nextroom;
+    			System.out.println(currentRoom.getLongDescription());
+    		}
+    		if(destination=="in the campus pub") {
+    			nextroom=currentRoom.getExit("tp3");
+    			currentRoom=nextroom;
+    			System.out.println(currentRoom.getLongDescription());
+    		}
+    		if(destination=="in a lecture theater") {
+    			nextroom=currentRoom.getExit("tp4");
+    			currentRoom=nextroom;
+    			System.out.println(currentRoom.getLongDescription());
+    		}
+    		if(destination=="in a computing lab") {
+    			nextroom=currentRoom.getExit("tp5");
+    			currentRoom=nextroom;
+    			//System.out.println(5);
+    			System.out.println(currentRoom.getLongDescription());
+    		}
+    	}
+    	System.out.println("TPlink:You've arrived.");
+    }
     /**
      * 执行go指令，向房间的指定方向出口移动，如果该出口连接了另一个房间，则会进入该房间，
      * 否则打印输出错误提示信息.
@@ -141,6 +229,7 @@ public class Game
         if(!command.hasSecondWord()) {
             // if there is no second word, we don't know where to go...
             System.out.println("Go where?");
+            
             return;
         }
 
@@ -154,7 +243,6 @@ public class Game
         }
         else {
             currentRoom = nextRoom;
-            System.out.println(currentRoom.getLongDescription());
         }
     }
 

@@ -4,7 +4,7 @@ public class CommandWords
 {
 	//目前包括了go,quit,help,get四个头指令
     private static final String[] validCommands = {
-            "go", "quit", "help","get"
+            "go", "quit", "help","get","look","lab","outside","theater","pub","office","TP"
     };
     //
     public CommandWords()
