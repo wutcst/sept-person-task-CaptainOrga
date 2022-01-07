@@ -13,10 +13,17 @@
  */
 package cn.edu.whut.sept.zuul;
 
+import java.util.Random;
+/**
+ * 初始化游戏数据，解析器，同时也包括一个记录方向信息的变量
+ * @author 王
+ *
+ */
 public class Game
 {
     private Parser parser;
     private Room currentRoom;
+    private String lastDirection;//记录上次前进的方向
 
     /**
      * 创建游戏并初始化内部数据和解析器.
@@ -50,12 +57,21 @@ public class Game
 
         pub.setExit("east", outside);
 
-        lab.setExit("north", outside);
-        lab.setExit("east", office);
+        //lab.setExit("north", outside);
+        //lab.setExit("east", office);
+        lab.setExit("tp1", office);
+        lab.setExit("tp2", outside);
+        lab.setExit("tp3", pub);
+        lab.setExit("tp4", theater);
+        
 
         office.setExit("west", lab);
 
         currentRoom = outside;  // start game outside
+        //create the weapons
+        outside.setWeapons("AKM(3.5kg)", "NORMAL");
+        lab.setWeapons("MK47(4.5kg)", "GOOD");
+        office.setWeapons("mental rifle(5.5kg)", "BAD");
     }
 
     /**
@@ -107,13 +123,19 @@ public class Game
         if (commandWord.equals("help")) {
             printHelp();
         }
-        else if (commandWord.equals("go")) {
+        if (commandWord.equals("go")) {
             goRoom(command);
         }
-        else if (commandWord.equals("quit")) {
+        if (commandWord.equals("quit")) {
             wantToQuit = quit(command);
         }
-        // else command not recognised.
+        if(commandWord.equals("look")) {
+        	lookforgoods(command);
+        }
+        if(commandWord.equals("back")) {
+        	back(command);
+        }
+        // else command not recognized.
         return wantToQuit;
     }
 
@@ -131,7 +153,64 @@ public class Game
         System.out.println("Your command words are:");
         parser.showCommands();
     }
-
+    /**
+     * 执行查看物品指令。如果该房间存在物品，则会进行显示
+     * 否则打印“no goods here.”
+     */
+    private void lookforgoods(Command command) {
+    	Room room=currentRoom;
+    	String weaponstring=room.getWeaponsString();
+    	System.out.println(weaponstring);
+    	System.out.println(currentRoom.getLongDescription());
+    }
+    /**
+     * 执行tp指令，触发随机传送.由于传送后不存在返回方式，back 存储的信息将会清空。
+     */
+    private void TPlink() {
+    	String destination = null;
+    	lastDirection=null;
+    	Random ran1=new Random(3);
+    	int count=ran1.nextInt(3);
+    	switch(count){
+    		case 0:destination="tp1";break;
+    		case 1:destination="tp2";break;
+    		case 2:destination="tp3";break;
+    		case 3:destination="tp4";break;
+    	}
+    	Room nextroom;
+    	nextroom=currentRoom.getExit(destination);
+		currentRoom=nextroom;
+		System.out.println("You've been tp to a new place.Use look to get known of it.");
+    }
+/**
+ * back指令：沿着与上次行走相反的方向移动，若没有相关移动记录则无法执行
+ * @param command是用户输入的指令。当command是back时会执行此函数
+ */
+    private void back(Command command) {
+    	if(lastDirection==null) {
+    		System.out.println("You can't use Command word 'back' now.");
+    		return;
+    	}
+    	String direction=getbackDirection(lastDirection);
+    	System.out.println("You're walking toward "+direction);
+    	Room nextRoom = currentRoom.getExit(direction);
+    	currentRoom = nextRoom;
+    }
+    /**
+     * 执行get反转方向指令
+     * @return 与输入方向相反的方向
+     * 
+     */
+    private String getbackDirection(String lastDirection) {
+    	String opsiteDirection = null;
+    	switch (lastDirection) {
+    	case"west":opsiteDirection="east";break;
+    	case"east":opsiteDirection="west";break;
+    	case"north":opsiteDirection="south";break;
+    	case"south":opsiteDirection="north";break;
+    	}
+		return opsiteDirection;
+    }
     /**
      * 执行go指令，向房间的指定方向出口移动，如果该出口连接了另一个房间，则会进入该房间，
      * 否则打印输出错误提示信息.
@@ -141,20 +220,25 @@ public class Game
         if(!command.hasSecondWord()) {
             // if there is no second word, we don't know where to go...
             System.out.println("Go where?");
+            
             return;
         }
 
         String direction = command.getSecondWord();
+        
+        lastDirection=direction;
 
         // Try to leave current room.
         Room nextRoom = currentRoom.getExit(direction);
-
+        
         if (nextRoom == null) {
             System.out.println("There is no door!");
         }
         else {
             currentRoom = nextRoom;
-            System.out.println(currentRoom.getLongDescription());
+        }
+        if(currentRoom.getShortDescription()=="in a computing lab") {
+        	TPlink();
         }
     }
 
