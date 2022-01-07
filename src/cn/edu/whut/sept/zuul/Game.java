@@ -19,6 +19,7 @@ public class Game
 {
     private Parser parser;
     private Room currentRoom;
+    private String lastDirection;//记录上次前进的方向
 
     /**
      * 创建游戏并初始化内部数据和解析器.
@@ -52,13 +53,12 @@ public class Game
 
         pub.setExit("east", outside);
 
-        lab.setExit("north", outside);
-        lab.setExit("east", office);
+        //lab.setExit("north", outside);
+        //lab.setExit("east", office);
         lab.setExit("tp1", office);
         lab.setExit("tp2", outside);
         lab.setExit("tp3", pub);
         lab.setExit("tp4", theater);
-        lab.setExit("tp5", lab);
         
 
         office.setExit("west", lab);
@@ -130,8 +130,9 @@ public class Game
         if(commandWord.equals("look")) {
         	lookforgoods(command);
         }
-        if(commandWord.equals("TP")) {
-        	TPlink(command);
+
+        if(commandWord.equals("back")) {
+        	back(command);
         }
         // else command not recognised.
         return wantToQuit;
@@ -164,8 +165,24 @@ public class Game
     	System.out.println(currentRoom.getLongDescription());
     }
     /**
-     * 执行tp指令，向指定房间移动
+     * 执行tp指令，出发随机传送
      */
+    private void TPlink() {
+    	String destination = null;
+    	Random ran1=new Random(3);
+    	int count=ran1.nextInt(3);
+    	switch(count){
+    		case 0:destination="tp1";break;
+    		case 1:destination="tp2";break;
+    		case 2:destination="tp3";break;
+    		case 3:destination="tp4";break;
+    	}
+    	Room nextroom;
+    	nextroom=currentRoom.getExit(destination);
+		currentRoom=nextroom;
+		System.out.println("You've been tp to a new place.Use look to get known of it.");
+    }
+    /*
     private void TPlink(Command command) {
     	if(currentRoom.getShortDescription()!="in a computing lab") {
     		System.out.println("You can't tp here.No tplink.");
@@ -220,6 +237,33 @@ public class Game
     	}
     	System.out.println("TPlink:You've arrived.");
     }
+    */
+    /**
+     * 
+     */
+    private void back(Command command) {
+    	String direction=getbackDirection(lastDirection);
+    	System.out.println("You're walking toward "+direction);
+    	Room nextRoom = currentRoom.getExit(direction);
+    	currentRoom = nextRoom;
+    }
+    /**
+     * 执行get反转方向指令
+     * @return 与输入方向相反的方向
+     * 
+     */
+    private String getbackDirection(String lastDirection) {
+    	String opsiteDirection = null;
+    	switch (lastDirection) {
+    	case"west":opsiteDirection="east";break;
+    	case"east":opsiteDirection="west";break;
+    	case"north":opsiteDirection="south";break;
+    	case"south":opsiteDirection="north";break;
+    	
+    	}
+    	//System.out.println(opsiteDirection);
+		return opsiteDirection;
+    }
     /**
      * 执行go指令，向房间的指定方向出口移动，如果该出口连接了另一个房间，则会进入该房间，
      * 否则打印输出错误提示信息.
@@ -234,15 +278,20 @@ public class Game
         }
 
         String direction = command.getSecondWord();
+        
+        lastDirection=direction;
 
         // Try to leave current room.
         Room nextRoom = currentRoom.getExit(direction);
-
+        
         if (nextRoom == null) {
             System.out.println("There is no door!");
         }
         else {
             currentRoom = nextRoom;
+        }
+        if(currentRoom.getShortDescription()=="in a computing lab") {
+        	TPlink();
         }
     }
 
