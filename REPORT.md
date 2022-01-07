@@ -16,7 +16,7 @@ Command类是用于对用户输入信息进行处理的类，它从parser里获�
 
 #### 1.2UML类图
 类图已经进行过编辑，所使用的md语言文件已经打包在项目中，即uml图.md
-[一开始的uml类图](https://github.com/wutcst/sept-person-task-CaptainOrga/blob/master/uml%E7%B1%BB%E5%9B%BE.png")
+[一开始的uml类图](https://github.com/wutcst/sept-person-task-CaptainOrga/blob/master/uml%E7%B1%BB%E5%9B%BE.png)
 
 ### 2.代码优化和改进
 #### 2.11代码优化
@@ -24,7 +24,7 @@ Command类是用于对用户输入信息进行处理的类，它从parser里获�
 
 优化代码截图如下：
 
-![略小改动](https://github.com/wutcst/sept-person-task-CaptainOrga/blob/master/%E5%B0%8F%E6%94%B9%E5%8A%A8.png")
+![略小改动](https://github.com/wutcst/sept-person-task-CaptainOrga/blob/master/%E5%B0%8F%E6%94%B9%E5%8A%A8.png)
 
 #### 2.2代码改进的功能分析
 2022.1.4 22：48 ver0.1 
